@@ -1,0 +1,82 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '${APP_PORT:-8000}:8000'
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      REDIS_HOST: redis
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+      - redis
+      - mailpit
+    networks:
+      - ignis
+
+  # `npm run dev` continua rodando fora do container (rede de desenvolvimento
+  # do Vite HMR fica mais simples direto no host); node so aqui e usado sob
+  # demanda para builds de producao: `docker compose run --rm node npm run build`.
+  node:
+    image: node:20-alpine
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    command: sh -c "npm install && npm run build"
+    profiles: ['build']
+    networks:
+      - ignis
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-ignis}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - '${FORWARD_DB_PORT:-5432}:5432'
+    volumes:
+      - ignis-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-q', '-d', '${DB_DATABASE:-ignis}', '-U', '${DB_USERNAME:-postgres}']
+      retries: 5
+      timeout: 5s
+    networks:
+      - ignis
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '${FORWARD_REDIS_PORT:-6379}:6379'
+    volumes:
+      - ignis-redis:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      retries: 5
+      timeout: 5s
+    networks:
+      - ignis
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - '${FORWARD_MAILPIT_PORT:-1025}:1025'
+      - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
+    networks:
+      - ignis
+
+networks:
+  ignis:
+    driver: bridge
+
+volumes:
+  ignis-db:
+    driver: local
+  ignis-redis:
+    driver: local

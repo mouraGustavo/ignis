@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Paleta de marca (navy + gold) e tokens shadcn-style, portados quase
+ * literalmente de ignis-front/src/index.css para manter a interface
+ * visualmente idêntica ao design original feito no Base44.
+ */
+@layer base {
+  :root {
+    --background: 222 59% 25%;
+    --foreground: 0 0% 100%;
+    --card: 222 50% 20%;
+    --card-foreground: 0 0% 100%;
+    --popover: 222 50% 20%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 48 100% 50%;
+    --primary-foreground: 222 59% 25%;
+    --secondary: 220 45% 30%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 40% 35%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 48 100% 50%;
+    --accent-foreground: 222 59% 25%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 35% 40%;
+    --input: 220 40% 35%;
+    --ring: 48 100% 50%;
+    --chart-1: 48 100% 50%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --font-heading: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --sidebar-background: 222 59% 20%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 48 100% 50%;
+    --sidebar-primary-foreground: 222 59% 25%;
+    --sidebar-accent: 220 45% 30%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 220 35% 40%;
+    --sidebar-ring: 48 100% 50%;
+    --ignis-navy: 222 59% 25%;
+    --ignis-navy-dark: 222 60% 15%;
+    --ignis-navy-light: 220 45% 30%;
+    --ignis-navy-card: 222 50% 20%;
+    --ignis-gold: 48 100% 50%;
+    --ignis-gold-dark: 44 90% 45%;
+    --ignis-gold-light: 52 100% 60%;
+    --ignis-border: 220 35% 40%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body;
+  }
+}
+
+@layer components {
+  /* Campo de formulário padrão usado em todos os forms públicos e do admin
+     (Inscricao, Pagamento, AdminConfiguracoes, AdminMidias, AdminEquipe no
+     front original) — extraído aqui para não repetir a mesma string de
+     classes em cada view Blade. */
+  .ignis-input {
+    @apply w-full bg-ignis-navy-light border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-ignis-gold transition-colors text-sm;
+  }
+
+  .ignis-card {
+    @apply bg-ignis-navy border border-slate-800 rounded-2xl p-6;
+  }
+
+  .ignis-btn-primary {
+    @apply w-full py-4 bg-gradient-to-r from-ignis-gold to-ignis-gold-dark hover:from-ignis-gold-light hover:to-ignis-gold disabled:from-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed text-white font-bold text-lg rounded-2xl transition-all duration-200 flex items-center justify-center gap-2;
+  }
+}
