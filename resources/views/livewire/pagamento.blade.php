@@ -85,13 +85,7 @@ $value = (float) ($settings['registration_value'] ?? '150');
                                 <x-icon name="alert-circle" class="w-4 h-4 inline mr-2" />
                                 O pagamento por cartão será processado manualmente pela organização. Selecione o número de parcelas e aguarde o contato da equipe.
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-300 mb-2">Parcelamento</label>
-                                <select wire:model="installments" class="ignis-input">
-                                    <option value="1">1x de R$ {{ number_format($value, 2, ',', '.') }} (sem juros)</option>
-                                    <option value="2">2x de R$ {{ number_format($value / 2, 2, ',', '.') }} (sem juros)</option>
-                                </select>
-                            </div>
+                            <x-formulario-cartao-credito />
                         </div>
                     @endif
 
