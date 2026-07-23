@@ -8,7 +8,7 @@ ARG NODE_MAJOR=22
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_HOME=/var/www/.composer
 
-# Instala dependências do sistema
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
@@ -25,10 +25,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxml2-dev \
     libonig-dev \
     libexif-dev \
-    && curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
+    && apt-get update && apt-get install -y --no-install-recommends nodejs \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Configure and install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+
+RUN docker-php-ext-install -j$(nproc) \
     bcmath \
     exif \
     gd \
@@ -38,20 +45,33 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pcntl \
     pdo_pgsql \
     pgsql \
-    zip \
-    && pecl install redis \
+    zip
+
+# Install PECL Redis with timeout and retry logic
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && pecl channel-update pecl.php.net || true \
+    && (pecl install redis-5.3.7 || pecl install redis) \
     && docker-php-ext-enable redis \
-    && if [ "$INSTALL_XDEBUG" = "true" ]; then \
-    pecl install xdebug && docker-php-ext-enable xdebug; \
-    fi \
-    && apt-get purge -y --auto-remove gnupg \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/pear
+    && apt-get purge -y --auto-remove build-essential \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Xdebug if needed
+RUN if [ "$INSTALL_XDEBUG" = "true" ]; then \
+    apt-get update && apt-get install -y --no-install-recommends build-essential && \
+    pecl install xdebug && \
+    docker-php-ext-enable xdebug && \
+    apt-get purge -y --auto-remove build-essential && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*; \
+    fi
+
+# Cleanup gnupg
+RUN apt-get purge -y --auto-remove gnupg || true
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
-# Configurações do PHP
+# PHP configurations
 COPY docker/php/conf.d/laravel.ini /usr/local/etc/php/conf.d/laravel.ini
 COPY docker/php/conf.d/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 COPY docker/php/conf.d/xdebug.ini /tmp/xdebug.ini

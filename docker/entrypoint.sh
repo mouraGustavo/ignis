@@ -13,6 +13,7 @@ if [ -f artisan ]; then
     php artisan storage:link || true
 fi
 
+chown -R www-data:www-data storage bootstrap/cache || true
 chmod -R 775 storage bootstrap/cache || true
 
 exec "$@"

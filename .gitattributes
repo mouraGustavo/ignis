@@ -1,0 +1,15 @@
+* text=auto eol=lf
+
+*.sh text eol=lf
+*.bash text eol=lf
+entrypoint.sh text eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

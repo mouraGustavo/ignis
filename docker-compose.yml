@@ -41,7 +41,10 @@ services:
 
     environment:
 
-      XDEBUG_MODE: debug,develop
+      # "debug" aqui faz toda requisição/comando artisan tentar conectar num IDE ouvindo em
+      # client_host:client_port; sem IDE anexado isso expira por timeout e derruba a performance.
+      # Para depurar de fato, rode: docker compose exec -e XDEBUG_MODE=debug,develop php bash
+      XDEBUG_MODE: develop
 
       XDEBUG_CONFIG: client_host=host.docker.internal client_port=9003
 
