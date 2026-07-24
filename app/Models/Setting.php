@@ -30,6 +30,7 @@ class Setting extends Model
         'registration_value' => '150',
         'pix_key' => '',
         'pix_name' => '',
+        'pix_qrcode_url' => '',
         'coordinator_email' => '',
         'registration_open' => 'true',
         'hero_image_url' => '',

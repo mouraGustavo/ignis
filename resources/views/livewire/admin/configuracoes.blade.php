@@ -87,6 +87,20 @@
             <x-field label="Nome do titular do PIX" for="pix_name">
                 <input id="pix_name" wire:model="pix_name" class="ignis-input" placeholder="Nome exibido na chave">
             </x-field>
+            <x-field label="QR Code do PIX">
+                <p class="text-xs text-slate-500 mb-2">
+                    Aparece na tela de pagamento da inscrição, abaixo da chave PIX.
+                </p>
+                @if ($pix_qrcode_file || $pix_qrcode_url)
+                    <img
+                        src="{{ $pix_qrcode_file ? $pix_qrcode_file->temporaryUrl() : $pix_qrcode_url }}"
+                        alt="QR Code do PIX"
+                        class="w-32 h-32 object-contain bg-white/5 rounded-xl mb-2"
+                    >
+                @endif
+                <input type="file" wire:model="pix_qrcode_file" accept="image/*" class="ignis-input text-xs">
+                @error('pix_qrcode_file') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+            </x-field>
         </section>
 
         <section class="ignis-card space-y-5">
