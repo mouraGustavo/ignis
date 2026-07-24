@@ -43,7 +43,11 @@
                     <x-vagas-counter :max-spots="(int) $settings['max_spots']" />
                 </div>
 
-                @if ($settings['registration_open'] === 'true')
+                @if ($vagasEsgotadas)
+                    <div class="inline-block bg-white/10 border border-white/20 text-white/60 rounded-2xl px-8 py-4 text-lg">
+                        Inscrições esgotadas — limite de vagas atingido
+                    </div>
+                @elseif ($settings['registration_open'] === 'true')
                     <a href="{{ route('inscricao') }}" class="inline-flex items-center gap-2 bg-ignis-gold hover:bg-ignis-gold-dark text-ignis-navy-dark font-bold text-lg px-10 py-4 rounded-2xl transition-all duration-200 shadow-lg shadow-ignis-gold/20 hover:scale-105">
                         Fazer Inscrição <x-icon name="chevron-right" class="w-5 h-5" />
                     </a>

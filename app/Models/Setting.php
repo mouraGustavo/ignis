@@ -30,10 +30,14 @@ class Setting extends Model
         'registration_value' => '150',
         'pix_key' => '',
         'pix_name' => '',
+        'pix_qrcode_url' => '',
         'coordinator_email' => '',
         'registration_open' => 'true',
         'hero_image_url' => '',
         'instagram_url' => 'https://www.instagram.com/ignis_acamp',
+        'logo_url' => '/storage/site/logo.png',
+        'brasao_url' => '/storage/site/brasao.png',
+        'church_url' => '/storage/site/igreja.png',
     ];
 
     /** Retorna todas as settings como um array associativo key => value (com defaults). */

@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             TamanhoCamisaSeeder::class,
             EventoSeeder::class,
             SettingSeeder::class,
+            MediaItemSeeder::class,
             AdminUserSeeder::class,
         ]);
     }

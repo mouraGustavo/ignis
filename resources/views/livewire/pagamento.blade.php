@@ -98,6 +98,11 @@ $value = (float) ($settings['registration_value'] ?? '150');
                                         </button>
                                     </div>
                                     <p class="text-xs text-slate-500 mt-2">Valor: R$ {{ number_format($value, 2, ',', '.') }}</p>
+                                    @if (!empty($settings['pix_qrcode_url']))
+                                        <div class="mt-4 flex justify-center">
+                                            <img src="{{ $settings['pix_qrcode_url'] }}" alt="QR Code do PIX" class="w-48 h-48 object-contain bg-white rounded-xl p-2">
+                                        </div>
+                                    @endif
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-slate-300 mb-2">Comprovante de pagamento *</label>

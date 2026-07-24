@@ -3,12 +3,16 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Setting;
+use App\Services\FileUploadService;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.admin')]
 class Configuracoes extends Component
 {
+    use WithFileUploads;
+
     public string $site_title = '';
 
     public string $site_subtitle = '';
@@ -29,9 +33,25 @@ class Configuracoes extends Component
 
     public string $pix_name = '';
 
+    public string $pix_qrcode_url = '';
+
+    public $pix_qrcode_file = null;
+
     public string $coordinator_email = '';
 
     public string $instagram_url = '';
+
+    public string $logo_url = '';
+
+    public string $brasao_url = '';
+
+    public string $church_url = '';
+
+    public $logo_file = null;
+
+    public $brasao_file = null;
+
+    public $church_file = null;
 
     public bool $saved = false;
 
@@ -49,8 +69,12 @@ class Configuracoes extends Component
         $this->registration_open = $settings['registration_open'] === 'true';
         $this->pix_key = $settings['pix_key'];
         $this->pix_name = $settings['pix_name'];
+        $this->pix_qrcode_url = $settings['pix_qrcode_url'];
         $this->coordinator_email = $settings['coordinator_email'];
         $this->instagram_url = $settings['instagram_url'];
+        $this->logo_url = $settings['logo_url'];
+        $this->brasao_url = $settings['brasao_url'];
+        $this->church_url = $settings['church_url'];
     }
 
     protected function rules(): array
@@ -67,18 +91,46 @@ class Configuracoes extends Component
             'pix_name' => ['nullable', 'string', 'max:255'],
             'coordinator_email' => ['nullable', 'email', 'max:255'],
             'instagram_url' => ['nullable', 'string', 'max:255'],
+            'logo_file' => ['nullable', 'image', 'max:5120'],
+            'brasao_file' => ['nullable', 'image', 'max:5120'],
+            'church_file' => ['nullable', 'image', 'max:5120'],
+            'pix_qrcode_file' => ['nullable', 'image', 'max:5120'],
         ];
     }
 
-    public function save(): void
+    public function save(FileUploadService $fileUploadService): void
     {
         $this->saved = false;
         $data = $this->validate();
         $data['registration_open'] = $this->registration_open ? 'true' : 'false';
 
+        if ($this->logo_file) {
+            $data['logo_url'] = $fileUploadService->storePublic($this->logo_file, 'site');
+        }
+
+        if ($this->brasao_file) {
+            $data['brasao_url'] = $fileUploadService->storePublic($this->brasao_file, 'site');
+        }
+
+        if ($this->church_file) {
+            $data['church_url'] = $fileUploadService->storePublic($this->church_file, 'site');
+        }
+
+        if ($this->pix_qrcode_file) {
+            $data['pix_qrcode_url'] = $fileUploadService->storePublic($this->pix_qrcode_file, 'pix');
+        }
+
+        unset($data['logo_file'], $data['brasao_file'], $data['church_file'], $data['pix_qrcode_file']);
+
         foreach ($data as $key => $value) {
             Setting::set($key, (string) $value);
         }
+
+        $this->logo_url = $data['logo_url'] ?? $this->logo_url;
+        $this->brasao_url = $data['brasao_url'] ?? $this->brasao_url;
+        $this->church_url = $data['church_url'] ?? $this->church_url;
+        $this->pix_qrcode_url = $data['pix_qrcode_url'] ?? $this->pix_qrcode_url;
+        $this->reset(['logo_file', 'brasao_file', 'church_file', 'pix_qrcode_file']);
 
         $this->saved = true;
     }
