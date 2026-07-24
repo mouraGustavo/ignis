@@ -30,6 +30,36 @@
         </section>
 
         <section class="ignis-card space-y-5">
+            <h2 class="font-bold text-ignis-gold">Imagens da Marca</h2>
+            <p class="text-xs text-slate-500 -mt-3">
+                Armazenadas na própria aplicação. Envie um arquivo para substituir a imagem atual.
+            </p>
+
+            <div class="grid grid-cols-3 gap-4">
+                <x-field label="Logo">
+                    <img src="{{ $logo_file ? $logo_file->temporaryUrl() : $logo_url }}" alt="Logo" class="w-20 h-20 object-contain bg-white/5 rounded-xl mb-2">
+                    <input type="file" wire:model="logo_file" accept="image/*" class="ignis-input text-xs">
+                    @error('logo_file') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                </x-field>
+                <x-field label="Brasão">
+                    <img src="{{ $brasao_file ? $brasao_file->temporaryUrl() : $brasao_url }}" alt="Brasão" class="w-20 h-20 object-contain bg-white/5 rounded-xl mb-2">
+                    <input type="file" wire:model="brasao_file" accept="image/*" class="ignis-input text-xs">
+                    @error('brasao_file') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                </x-field>
+                <x-field label="Igreja">
+                    <img src="{{ $church_file ? $church_file->temporaryUrl() : $church_url }}" alt="Igreja" class="w-20 h-20 object-contain bg-white/5 rounded-xl mb-2">
+                    <input type="file" wire:model="church_file" accept="image/*" class="ignis-input text-xs">
+                    @error('church_file') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                </x-field>
+            </div>
+            <p class="text-xs text-slate-500">
+                As fotos padrão da galeria da home ficam em
+                <a href="{{ route('admin.midias') }}" class="text-ignis-gold underline underline-offset-2">Mídias</a>,
+                onde também podem ser trocadas ou removidas.
+            </p>
+        </section>
+
+        <section class="ignis-card space-y-5">
             <h2 class="font-bold text-ignis-gold">Inscrições e Pagamento</h2>
             <div class="grid grid-cols-2 gap-4">
                 <x-field label="Limite de vagas" for="max_spots">

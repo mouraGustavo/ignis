@@ -34,6 +34,9 @@ class Setting extends Model
         'registration_open' => 'true',
         'hero_image_url' => '',
         'instagram_url' => 'https://www.instagram.com/ignis_acamp',
+        'logo_url' => '/storage/site/logo.png',
+        'brasao_url' => '/storage/site/brasao.png',
+        'church_url' => '/storage/site/igreja.png',
     ];
 
     /** Retorna todas as settings como um array associativo key => value (com defaults). */

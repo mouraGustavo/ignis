@@ -11,35 +11,16 @@ use Illuminate\Contracts\View\View;
 
 class PublicSiteController extends Controller
 {
-    /**
-     * URLs padrao (marca / edicoes anteriores) mantidas exatamente como no
-     * front original (ignis-front/src/pages/Home.jsx), hospedadas no CDN do
-     * Base44 — nao ha necessidade de baixar/self-host esses assets.
-     */
-    private const LOGO_URL = 'https://media.base44.com/images/public/6a58e2062aa1365f75b0f66c/7597405dd_image.png';
-
-    private const BRASAO_URL = 'https://media.base44.com/images/public/6a58e2062aa1365f75b0f66c/c6172d8de_brasoSP.png';
-
-    private const CHURCH_URL = 'https://media.base44.com/images/public/6a58e2062aa1365f75b0f66c/0dcfb3ec1_image.png';
-
-    private const DEFAULT_GALLERY = [
-        'https://media.base44.com/images/public/6a58e2062aa1365f75b0f66c/41d0d569b_image.png',
-        'https://media.base44.com/images/public/6a58e2062aa1365f75b0f66c/c40046b33_image.png',
-        'https://media.base44.com/images/public/6a58e2062aa1365f75b0f66c/7227d859f_image.png',
-    ];
-
     public function home(): View
     {
         $settings = Setting::allAsArray();
 
-        $mediaUrls = MediaItem::query()
+        $galleryPhotos = MediaItem::query()
             ->where('active', true)
             ->where('type', 'photo')
             ->orderBy('order')
             ->pluck('url')
             ->all();
-
-        $galleryPhotos = array_values(array_unique([...self::DEFAULT_GALLERY, ...$mediaUrls]));
 
         $confirmados = EventoInscrito::query()
             ->whereHas('status', fn ($q) => $q->where('nome', StatusInscricao::CONFIRMADA))
@@ -50,9 +31,9 @@ class PublicSiteController extends Controller
         return view('home', [
             'settings' => $settings,
             'galleryPhotos' => $galleryPhotos,
-            'logoUrl' => self::LOGO_URL,
-            'brasaoUrl' => self::BRASAO_URL,
-            'churchUrl' => self::CHURCH_URL,
+            'logoUrl' => $settings['logo_url'],
+            'brasaoUrl' => $settings['brasao_url'],
+            'churchUrl' => $settings['church_url'],
             'vagasEsgotadas' => $vagasEsgotadas,
         ]);
     }

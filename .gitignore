@@ -9,6 +9,10 @@
 !/storage/app/private/.gitkeep
 /storage/app/public/*
 !/storage/app/public/.gitkeep
+# Imagens de marca (logo, brasao, igreja, galeria padrao) sao assets versionados da aplicacao,
+# nao upload de usuario -- nao podem depender so do disco local (ver Setting::DEFAULTS/MediaItemSeeder).
+!/storage/app/public/site/
+!/storage/app/public/site/**
 /storage/framework/cache/data/*
 !/storage/framework/cache/data/.gitkeep
 /storage/framework/sessions/*

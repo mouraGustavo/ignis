@@ -98,18 +98,34 @@ O `AdminUserSeeder` cria o admin inicial com `ADMIN_SEED_EMAIL`/`ADMIN_SEED_PASS
 - **`termos_aceitos`** substitui os 5 booleanos soltos do Base44 (`term_truth`,
   `term_participation`, `term_emergency`, `term_image`, `term_rules`) por um único campo `jsonb`.
 - **`Setting::DEFAULTS`** replica o objeto `DEFAULTS` que existia em `settingsHelper.jsx` do
-  protótipo front, para manter os mesmos textos/valores padrão do site.
+  protótipo front, para manter os mesmos textos/valores padrão do site. Inclui `logo_url`,
+  `brasao_url` e `church_url`, apontando por padrão para arquivos locais (ver seção de imagens
+  abaixo). `SettingSeeder` usa `firstOrCreate` (nunca `updateOrCreate`): rodar `migrate --seed`
+  de novo num ambiente já em uso não reseta nenhuma configuração que o admin já tenha alterado
+  pelo painel — só preenche chaves que ainda não existirem na tabela.
 - Constraints `CHECK` (`chk_data_evento`, `chk_limite_vagas`) foram replicadas via `DB::statement`,
   pois o Schema Builder do Laravel não tem uma API fluente e portável para isso.
 
 ## Discos de armazenamento (`config/filesystems.php`)
 
 - **`public`**: mídias e fotos da equipe — arquivos não sensíveis, servidos via URL pública
-  (`php artisan storage:link`).
+  (`php artisan storage:link`). Inclui `storage/app/public/site/` (logo, brasão, foto da igreja),
+  autohospedados — nenhuma imagem da aplicação depende mais de URLs externas do CDN do Base44.
 - **`local`** (root `storage/app/private`): `documento_url` (responsável) e
   `comprovante_pagamento_url` (pagamento) — arquivos sensíveis, **nunca** expostos por URL
   pública. Servidos apenas via `GET /admin/files?path=...`, protegida pelos middlewares
   `auth` + `admin` (`App\Http\Controllers\Admin\FileController`).
+
+## Imagens de marca e galeria
+
+- **Logo, brasão e foto da igreja** (home): URLs guardadas em `settings.logo_url`/`brasao_url`/
+  `church_url`, com default apontando para `storage/app/public/site/*.png` (baixados uma vez do
+  CDN do Base44, já commitados no disco). Trocáveis por upload em `/admin/configuracoes` →
+  seção "Imagens da Marca" (usa o mesmo `FileUploadService::storePublic()` das demais mídias).
+- **Fotos padrão da galeria da home**: viraram `MediaItem` normais (seedados uma vez por
+  `database/seeders/MediaItemSeeder.php`), então já são gerenciáveis (trocar, ocultar, remover)
+  em `/admin/midias` como qualquer outra mídia — não há mais um array hardcoded separado no
+  `PublicSiteController`.
 
 ## Fila de e-mails
 
@@ -155,6 +171,3 @@ Admin (`auth` + `admin`, prefixo `/admin`): `/` (dashboard), `/inscricoes`, `/co
 1. Testes automatizados (Feature tests com Livewire's testing helpers) para o fluxo completo de
    inscrição, pagamento, confirmação e bloqueio de vagas.
 2. Policies/Gates mais granulares, se houver mais de um nível de permissão admin no futuro.
-3. Self-host dos assets de marca (logo, brasão, fotos padrão da galeria) hoje ainda apontando para
-   o CDN do Base44 (`PublicSiteController`) — opcional, hoje funcional mas é uma dependência
-   externa que pode ser eliminada.

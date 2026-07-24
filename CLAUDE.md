@@ -17,7 +17,8 @@ this repo's Livewire component is the implementation to modify, never `ignis-fro
 
 - Commands: `composer install`, `npm install`, `php artisan migrate --seed`,
   `php artisan serve`, `npm run dev` (Vite/Tailwind HMR), `npm run build`. Or via Docker:
-  `docker compose up -d --build` then `docker compose exec app php artisan migrate --seed`.
+  `docker compose up -d --build` then `docker compose exec php php artisan migrate --seed` (the
+  PHP service is named `php` in `docker-compose.yml`, not `app`).
 - No automated test suite exists yet (flagged as a suggested next step in `README.md`) — verify
   changes by running the app and clicking through the affected flow.
 - Requires PHP 8.2+; PostgreSQL only (see "Conventions to preserve").
@@ -62,10 +63,19 @@ monolith conversion:
   (`StatusInscricao::PENDENTE`, `AGUARDANDO_PAGAMENTO`, `CONFIRMADA`, `CANCELADA`,
   `RECUSADA`, `LISTA_ESPERA`), never magic strings.
 - `Setting` — key/value store for site config. `Setting::DEFAULTS` mirrors what used to be
-  `settingsHelper.jsx`'s `DEFAULTS` in the old front-end prototype. `Setting::allAsArray()`
-  merges stored rows over defaults; `Setting::set()` invalidates the `settings.all` cache key.
+  `settingsHelper.jsx`'s `DEFAULTS` in the old front-end prototype, plus `logo_url`/`brasao_url`/
+  `church_url` (added when those brand images were moved off the Base44 CDN — see "File storage"
+  below). `Setting::allAsArray()` merges stored rows over defaults; `Setting::set()` invalidates
+  the `settings.all` cache key. **`database/seeders/SettingSeeder.php` uses `firstOrCreate`, never
+  `updateOrCreate`**: re-running `migrate --seed` (or `db:seed`) against a database that's already
+  in use must not reset settings an admin has already changed via `/admin/configuracoes` — it only
+  fills in keys that don't exist yet. Keep this guarantee if you touch that seeder.
 - `MediaItem`, `TeamMember` — content for the public site's media gallery and team page;
-  required entities, actively managed from `/admin/midias` and `/admin/equipe`.
+  required entities, actively managed from `/admin/midias` and `/admin/equipe`. The home page's
+  default gallery photos are ordinary `MediaItem` rows too (seeded once by
+  `database/seeders/MediaItemSeeder.php`, also `firstOrCreate`-based, matched by `url`) — there is
+  no separate hardcoded gallery array in `PublicSiteController` anymore; every gallery photo,
+  default or admin-added, is managed the same way from `/admin/midias`.
 
 **Request flow for registration** (the core business flow) — same `RegistrationService`/
 `VagasLimiteService` as before, now called directly from Livewire components instead of JSON
@@ -114,7 +124,13 @@ controllers:
 **File storage** — two disks, chosen per sensitivity (`FileUploadService`, unchanged):
 - `public` disk (root `storage/app/public`): media items, team photos — served via public URL,
   requires `php artisan storage:link`. (Registration no longer collects a participant photo —
-  `Inscrito` has no photo column.)
+  `Inscrito` has no photo column.) Also holds `storage/app/public/site/` — the home page's logo,
+  brasão, and church photo, downloaded once from the Base44 CDN and committed to this disk so the
+  app has zero runtime dependency on the Base44 account staying alive. Their URLs live in
+  `settings.logo_url`/`brasao_url`/`church_url` (not hardcoded in `PublicSiteController` anymore);
+  admins replace them via file upload in `/admin/configuracoes` → "Imagens da Marca"
+  (`App\Livewire\Admin\Configuracoes`, same `FileUploadService::storePublic()` call used by
+  `Admin\Midias`).
 - `local` disk (root `storage/app/private`): guardian documents, payment proofs — **never**
   given a public URL; served only through `GET /admin/files?path=...`
   (`Admin\FileController`), which sits behind `auth` + `admin` middleware.
