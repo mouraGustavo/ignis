@@ -14,6 +14,7 @@
         "vite": "^6.0.0"
     },
     "dependencies": {
-        "chart.js": "^4.4.4"
+        "chart.js": "^4.4.4",
+        "payment-token-efi": "^3.0.0"
     }
 }

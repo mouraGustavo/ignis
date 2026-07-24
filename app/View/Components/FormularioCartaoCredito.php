@@ -4,13 +4,15 @@ namespace App\View\Components;
 
 use Illuminate\View\Component;
 
-
 class FormularioCartaoCredito extends Component
 {
     public function __construct(
-        public int $value = 150,
-        public int $installments = 1
-    ) {}
+        public int $valueCents = 15000,
+        public string $payeeCode = '',
+        public string $environment = 'sandbox',
+        public int $maxInstallments = 2,
+    ) {
+    }
 
     public function render()
     {

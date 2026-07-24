@@ -24,10 +24,11 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        // Constraints replicadas do dump original (Laravel Schema Builder ainda nao tem
-        // um metodo fluente para CHECK constraints de forma portavel, entao usamos SQL bruto).
-        DB::statement('ALTER TABLE eventos ADD CONSTRAINT chk_data_evento CHECK (data_fim >= data_inicio)');
-        DB::statement('ALTER TABLE eventos ADD CONSTRAINT chk_limite_vagas CHECK (limite_vagas > 0)');
+        // CHECK constraints apenas no PostgreSQL (SQLite de testes não suporta ALTER CONSTRAINT).
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE eventos ADD CONSTRAINT chk_data_evento CHECK (data_fim >= data_inicio)');
+            DB::statement('ALTER TABLE eventos ADD CONSTRAINT chk_limite_vagas CHECK (limite_vagas > 0)');
+        }
     }
 
     public function down(): void

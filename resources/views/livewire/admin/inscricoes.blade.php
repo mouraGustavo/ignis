@@ -63,6 +63,9 @@
                                 </td>
                                 <td class="px-4 py-3 hidden sm:table-cell">
                                     <span class="text-xs text-slate-400 capitalize">{{ $reg->metodo_pagamento === 'pix' ? 'PIX' : ($reg->metodo_pagamento === 'credit_card' ? 'Cartão' : '—') }}</span>
+                                    @if ($reg->payment?->card_mask)
+                                        <span class="block text-xs text-slate-500">{{ $reg->payment->card_mask }}</span>
+                                    @endif
                                     @if ($reg->comprovante_pagamento_url)
                                         <a href="{{ route('admin.files.show', ['path' => $reg->comprovante_pagamento_url]) }}" target="_blank" class="ml-2 text-xs text-ignis-gold hover:underline">ver</a>
                                     @endif
@@ -120,6 +123,10 @@
                         ['Idade', $this->selected->inscrito->idade ? "{$this->selected->inscrito->idade} anos" : '—'],
                         ['Camiseta', $this->selected->inscrito->tamanhoCamisa?->tamanho],
                         ['Pagamento', $this->selected->metodo_pagamento === 'pix' ? 'PIX' : ($this->selected->metodo_pagamento === 'credit_card' ? "Cartão ({$this->selected->parcelas_pagamento}x)" : '—')],
+                        ['Status pagamento', $this->selected->payment?->status?->label() ?? '—'],
+                        ['ID cobrança Efí', $this->selected->payment?->transaction_id ?? '—'],
+                        ['Cartão', $this->selected->payment?->card_mask ?? '—'],
+                        ['Motivo recusa', $this->selected->payment?->failure_reason ?? '—'],
                         ['Responsável', $this->selected->inscrito->responsavel?->nome ?? '—'],
                         ['Restrições alimentares', $this->selected->inscrito->informacaoSaude?->restricoes_alimentares ?: '—'],
                         ['Alergias', $this->selected->inscrito->informacaoSaude?->alergias ?: '—'],

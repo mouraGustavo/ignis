@@ -65,7 +65,7 @@ class Inscricoes extends Component
         }
 
         return EventoInscrito::query()
-            ->with(['inscrito.contato', 'inscrito.informacaoSaude', 'inscrito.responsavel', 'status', 'evento'])
+            ->with(['inscrito.contato', 'inscrito.informacaoSaude', 'inscrito.responsavel', 'status', 'evento', 'payment'])
             ->find($this->selectedId);
     }
 
@@ -73,7 +73,7 @@ class Inscricoes extends Component
     public function registrations()
     {
         return EventoInscrito::query()
-            ->with(['inscrito.contato', 'status'])
+            ->with(['inscrito.contato', 'status', 'payment'])
             ->when($this->filterStatus !== 'all', fn ($q) => $q->whereHas('status', fn ($qs) => $qs->where('nome', $this->filterStatus)))
             ->when($this->search !== '', function ($q) {
                 $q->whereHas('inscrito', function ($qi) {

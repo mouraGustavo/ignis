@@ -5,15 +5,25 @@ $value = (float) ($settings['registration_value'] ?? '150');
     @if ($done)
         <div class="min-h-screen bg-ignis-navy-dark flex items-center justify-center px-4">
             <div class="max-w-md w-full text-center">
-                <div class="text-7xl mb-6">🎉</div>
-                <h2 class="text-3xl font-black text-white mb-3">Inscrição enviada!</h2>
+                <div class="text-7xl mb-6">{{ $paymentConfirmed ? '✅' : '🎉' }}</div>
+                <h2 class="text-3xl font-black text-white mb-3">
+                    {{ $paymentConfirmed ? 'Inscrição confirmada!' : 'Inscrição enviada!' }}
+                </h2>
                 <p class="text-slate-400 mb-6">
-                    Sua inscrição está <strong class="text-amber-400">pendente</strong> de confirmação. Assim que o pagamento for validado, você receberá um e-mail de confirmação.
+                    @if ($successMessage)
+                        {{ $successMessage }}
+                    @else
+                        Sua inscrição está <strong class="text-amber-400">pendente</strong> de confirmação. Assim que o pagamento for validado, você receberá um e-mail de confirmação.
+                    @endif
                 </p>
                 <div class="ignis-card !p-4 text-left text-sm text-slate-400 mb-8">
                     <p><span class="text-white font-medium">Nome:</span> {{ $eventoInscrito->inscrito->nome }}</p>
                     <p><span class="text-white font-medium">E-mail:</span> {{ $eventoInscrito->inscrito->contato->email }}</p>
-                    <p><span class="text-white font-medium">Status:</span> <span class="text-amber-400">Pendente</span></p>
+                    <p><span class="text-white font-medium">Status:</span>
+                        <span class="{{ $paymentConfirmed ? 'text-green-400' : 'text-amber-400' }}">
+                            {{ $paymentConfirmed ? 'Confirmada' : ($eventoInscrito->status->nome === \App\Models\StatusInscricao::AGUARDANDO_PAGAMENTO ? 'Aguardando pagamento' : 'Pendente') }}
+                        </span>
+                    </p>
                 </div>
                 <a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-ignis-gold hover:text-purple-300 transition-colors">
                     <x-icon name="chevron-left" class="w-4 h-4" /> Voltar ao início
@@ -33,7 +43,6 @@ $value = (float) ($settings['registration_value'] ?? '150');
                     <span class="text-3xl font-black text-white">R$ {{ number_format($value, 2, ',', '.') }}</span>
                 </div>
 
-                {{-- Metodo --}}
                 <div class="flex gap-3 mb-6">
                     <button type="button" wire:click="$set('method', 'pix')" class="flex-1 py-3 rounded-xl border font-semibold text-sm transition-all {{ $method === 'pix' ? 'bg-ignis-gold border-purple-500 text-white' : 'bg-ignis-navy-light border-slate-700 text-slate-400 hover:border-slate-500' }}">
                         PIX
@@ -43,7 +52,29 @@ $value = (float) ($settings['registration_value'] ?? '150');
                     </button>
                 </div>
 
-                <form wire:submit="submit" class="space-y-5">
+                <form
+                    wire:submit="submit"
+                    x-data="{
+                        async handleSubmit(e) {
+                            if ($wire.method !== 'credit_card') return;
+                            e.preventDefault();
+                            const cardForm = document.getElementById('credit-card-form-root');
+                            if (!cardForm) return;
+                            const data = Alpine.$data(cardForm);
+                            if (!data?.tokenize) return;
+                            const tokenData = await data.tokenize();
+                            if (!tokenData) return;
+                            $wire.processCardPayment(
+                                tokenData.paymentToken,
+                                tokenData.cardMask,
+                                parseInt(data.installments, 10),
+                                data.holderDocument
+                            );
+                        }
+                    }"
+                    @submit="handleSubmit($event)"
+                    class="space-y-5"
+                >
                     @if ($method === 'pix')
                         <div class="ignis-card space-y-5">
                             <h3 class="font-bold text-ignis-gold">Pague via PIX</h3>
@@ -79,29 +110,38 @@ $value = (float) ($settings['registration_value'] ?? '150');
                     @endif
 
                     @if ($method === 'credit_card')
-                        <div class="ignis-card space-y-4">
-                            <h3 class="font-bold text-ignis-gold">Cartão de Crédito</h3>
-                            <div class="bg-amber-900/20 border border-amber-700/40 rounded-xl p-4 text-sm text-amber-300">
-                                <x-icon name="alert-circle" class="w-4 h-4 inline mr-2" />
-                                O pagamento por cartão será processado manualmente pela organização. Selecione o número de parcelas e aguarde o contato da equipe.
+                        <div class="space-y-4">
+                            <div class="ignis-card !p-0 !bg-transparent !border-0 space-y-4">
+                                <h3 class="font-bold text-ignis-gold px-0">Cartão de Crédito</h3>
+                                <p class="text-sm text-slate-400">Pagamento processado de forma segura pela Efí Bank. Os dados do cartão não são armazenados em nossos servidores.</p>
                             </div>
-                            <x-formulario-cartao-credito />
+                            <x-formulario-cartao-credito
+                                :value-cents="$valueCents"
+                                :payee-code="$efiPayeeCode"
+                                :environment="$efiEnvironment"
+                                :max-installments="2"
+                            />
                         </div>
                     @endif
 
                     @error('proofFile') <p class="text-red-400 text-sm">{{ $message }}</p> @enderror
-                    @error('installments') <p class="text-red-400 text-sm">{{ $message }}</p> @enderror
 
                     @if ($formError)
                         <div class="flex items-center gap-2 text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-sm">
-                            <x-icon name="alert-circle" class="w-4 h-4 flex-shrink-0" /> {{ $formError }}
+                            <x-icon name="alert-circle" class="w-4 h-4 flex-shrink-0" />
+                            <span>{{ $formError }}</span>
+                            @if ($paymentRetryable)
+                                <span class="block text-slate-400 mt-1">Você pode tentar novamente com outro cartão.</span>
+                            @endif
                         </div>
                     @endif
 
-                    <button type="submit" wire:loading.attr="disabled" wire:target="submit" class="ignis-btn-primary">
-                        <span wire:loading.remove wire:target="submit">Confirmar Inscrição →</span>
-                        <span wire:loading wire:target="submit" class="flex items-center gap-2">
-                            <x-icon name="loader-2" class="w-5 h-5" /> Enviando...
+                    <button type="submit" wire:loading.attr="disabled" wire:target="submit,processCardPayment" class="ignis-btn-primary">
+                        <span wire:loading.remove wire:target="submit,processCardPayment">
+                            {{ $method === 'credit_card' ? 'Pagar com cartão →' : 'Confirmar Inscrição →' }}
+                        </span>
+                        <span wire:loading wire:target="submit,processCardPayment" class="flex items-center gap-2">
+                            <x-icon name="loader-2" class="w-5 h-5" /> Processando...
                         </span>
                     </button>
                 </form>
@@ -109,3 +149,7 @@ $value = (float) ($settings['registration_value'] ?? '150');
         </div>
     @endif
 </div>
+
+@push('head-scripts')
+<script src="https://cdn.jsdelivr.net/gh/efipay/js-payment-token-efi/dist/payment-token-efi-umd.min.js"></script>
+@endpush

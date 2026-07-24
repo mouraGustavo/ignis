@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EventoInscrito extends Model
@@ -23,6 +24,7 @@ class EventoInscrito extends Model
         'metodo_pagamento',
         'comprovante_pagamento_url',
         'parcelas_pagamento',
+        'payment_id',
         'observacoes',
     ];
 
@@ -45,5 +47,15 @@ class EventoInscrito extends Model
     public function status(): BelongsTo
     {
         return $this->belongsTo(StatusInscricao::class, 'status_id');
+    }
+
+    public function payment(): BelongsTo
+    {
+        return $this->belongsTo(Payment::class, 'payment_id');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'evento_inscrito_id');
     }
 }

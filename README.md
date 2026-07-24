@@ -138,7 +138,7 @@ rodando (`php artisan queue:work`).
   e-mail e campos de pagamento/status) até a véspera do evento — `MinhaInscricao::canEdit()`
   bloqueia a edição quando `evento.data_inicio` já passou ou a inscrição está
   cancelada/recusada. Sem autenticação: o acesso é só pelo e-mail, igual à busca de status.
-- **Pagamento**: PIX exige comprovante (armazenado no disco privado); cartão aceita 1x ou 2x.
+- **Pagamento**: PIX exige comprovante (armazenado no disco privado); cartão aceita 1x ou 2x via API Efí (tokenização no browser + cobrança one-step).
 - **E-mails automáticos**: `InscricaoRecebidaMail` (ao registrar), `InscricaoConfirmadaMail` (ao
   confirmar pagamento) e `LimiteVagasAtingidoMail` (ao coordenador, com o `.xlsx` em anexo).
 
@@ -149,6 +149,10 @@ Públicas: `/` (Home), `/inscricao`, `/pagamento/{eventoInscrito}`, `/minha-insc
 
 Admin (`auth` + `admin`, prefixo `/admin`): `/` (dashboard), `/inscricoes`, `/configuracoes`,
 `/midias`, `/equipe`, `/relatorios`, `/reports/export-csv`, `/files`.
+
+## Pagamento com cartão (Efí Bank)
+
+Integração com a API Cobranças > Cartão da Efí. Para testar em homologação, siga o guia passo a passo em [`docs/README-teste-cobranca-cartao.md`](docs/README-teste-cobranca-cartao.md).
 
 ## Próximos passos sugeridos
 
