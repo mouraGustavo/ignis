@@ -41,8 +41,8 @@ Gerado a partir de:
 ```bash
 cp .env.example .env
 docker compose up -d --build
-docker compose exec app php artisan key:generate
-docker compose exec app php artisan migrate --seed
+docker compose exec php php artisan key:generate
+docker compose exec php php artisan migrate --seed
 docker compose run --rm node   # build dos assets (Tailwind/Vite) para produção
 ```
 App em `http://localhost:8000`, e-mails de teste em `http://localhost:8025` (Mailpit).

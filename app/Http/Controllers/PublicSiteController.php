@@ -41,12 +41,19 @@ class PublicSiteController extends Controller
 
         $galleryPhotos = array_values(array_unique([...self::DEFAULT_GALLERY, ...$mediaUrls]));
 
+        $confirmados = EventoInscrito::query()
+            ->whereHas('status', fn ($q) => $q->where('nome', StatusInscricao::CONFIRMADA))
+            ->count();
+
+        $vagasEsgotadas = $confirmados >= (int) $settings['max_spots'];
+
         return view('home', [
             'settings' => $settings,
             'galleryPhotos' => $galleryPhotos,
             'logoUrl' => self::LOGO_URL,
             'brasaoUrl' => self::BRASAO_URL,
             'churchUrl' => self::CHURCH_URL,
+            'vagasEsgotadas' => $vagasEsgotadas,
         ]);
     }
 
