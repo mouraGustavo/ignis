@@ -75,6 +75,54 @@ services:
 
 
 
+  queue:
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+      args:
+        INSTALL_XDEBUG: "false"
+
+    container_name: ignis_queue
+
+    restart: unless-stopped
+
+    working_dir: /var/www/html
+
+    volumes:
+      - ./:/var/www/html
+
+    environment:
+
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: ignis
+      DB_USERNAME: postgres
+      DB_PASSWORD: secret
+
+      REDIS_HOST: redis
+
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+
+    # Processa a fila (e-mails, exports, etc — QUEUE_CONNECTION=database) continuamente.
+    # Sem isso, Mail::to(...)->queue(...) so enfileira a linha em `jobs` e nada e de fato
+    # enviado ate alguem rodar queue:work manualmente.
+    command: php artisan queue:work --tries=3 --sleep=3
+
+    depends_on:
+
+      - postgres
+      - redis
+      - mailpit
+
+    networks:
+
+      - ignis
+
+
+
   node:
 
     image: node:22-alpine

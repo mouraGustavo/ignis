@@ -36,6 +36,12 @@ $value = (float) ($settings['registration_value'] ?? '150');
                 <div class="mb-8">
                     <h1 class="text-3xl font-black mb-1">Pagamento</h1>
                     <p class="text-slate-400">Olá, <strong class="text-white">{{ $eventoInscrito->inscrito->nome }}</strong>! Finalize seu pagamento.</p>
+                    <a
+                        href="{{ route('minha-inscricao', ['email' => $eventoInscrito->inscrito->contato->email]) }}"
+                        class="inline-flex items-center gap-1 text-sm text-ignis-gold hover:text-ignis-gold-light transition-colors mt-2"
+                    >
+                        <x-icon name="pencil" class="w-4 h-4" /> Precisa corrigir algum dado da inscrição? Clique aqui
+                    </a>
                 </div>
 
                 <div class="bg-gradient-to-r from-ignis-gold/20 to-ignis-gold-dark/20 border border-purple-500/30 rounded-2xl p-5 mb-6 flex items-center justify-between">

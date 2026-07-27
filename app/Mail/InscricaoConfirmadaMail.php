@@ -19,6 +19,6 @@ class InscricaoConfirmadaMail extends Mailable
     {
         return $this
             ->subject('Inscrição confirmada - ' . $this->eventoInscrito->evento->titulo)
-            ->view('emails.inscricao-confirmada');
+            ->markdown('emails.inscricao-confirmada');
     }
 }

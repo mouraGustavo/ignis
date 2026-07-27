@@ -19,6 +19,6 @@ class InscricaoRecebidaMail extends Mailable
     {
         return $this
             ->subject('Inscrição recebida - ' . $this->eventoInscrito->evento->titulo)
-            ->view('emails.inscricao-recebida');
+            ->markdown('emails.inscricao-recebida');
     }
 }
