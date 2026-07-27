@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\VagasEsgotadasException;
+use App\Mail\InscricaoCanceladaMail;
 use App\Mail\InscricaoConfirmadaMail;
 use App\Mail\InscricaoRecebidaMail;
 use App\Models\ContatoInscrito;
@@ -171,6 +172,22 @@ class RegistrationService
         Mail::to($eventoInscrito->inscrito->contato->email)->queue(new InscricaoConfirmadaMail($eventoInscrito));
 
         $this->vagasLimiteService->verificarLimite($eventoInscrito->evento);
+
+        return $eventoInscrito->fresh(['inscrito.contato', 'status', 'evento']);
+    }
+
+    /**
+     * Marca a inscricao como cancelada e notifica o inscrito por e-mail.
+     */
+    public function cancelarInscricao(EventoInscrito $eventoInscrito): EventoInscrito
+    {
+        $statusCancelada = StatusInscricao::query()->where('nome', StatusInscricao::CANCELADA)->firstOrFail();
+
+        $eventoInscrito->update(['status_id' => $statusCancelada->id]);
+
+        $eventoInscrito->load(['inscrito.contato', 'status', 'evento']);
+
+        Mail::to($eventoInscrito->inscrito->contato->email)->queue(new InscricaoCanceladaMail($eventoInscrito));
 
         return $eventoInscrito->fresh(['inscrito.contato', 'status', 'evento']);
     }

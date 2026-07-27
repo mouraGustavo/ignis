@@ -19,6 +19,6 @@ class LimiteVagasAtingidoMail extends Mailable
     {
         return $this
             ->subject('Limite de vagas atingido - ' . $this->evento->titulo)
-            ->view('emails.limite-vagas-atingido');
+            ->markdown('emails.limite-vagas-atingido');
     }
 }

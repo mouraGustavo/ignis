@@ -78,13 +78,19 @@ class Inscricao extends Component
         $this->isFull = ! $evento || $evento->atingiuLimiteVagas() || Setting::get('registration_open') === 'false';
     }
 
-    public function updatedBirthDate(?string $value): void
+    /**
+     * birth_date chega ao servidor via @entangle (deferred, sem .live) para o calculo de
+     * idade no formulario ser instantaneo no navegador (ver resources/views/livewire/inscricao.blade.php)
+     * — uma sincronizacao deferred atualiza a propriedade mas NAO dispara updatedBirthDate(),
+     * entao a idade precisa ser recalculada aqui a partir de birth_date, nao de um hook.
+     */
+    private function calcularIdade(): void
     {
         $this->age = null;
 
-        if ($value) {
+        if ($this->birth_date) {
             try {
-                $this->age = Carbon::parse($value)->age;
+                $this->age = Carbon::parse($this->birth_date)->age;
             } catch (\Throwable) {
                 $this->age = null;
             }
@@ -143,6 +149,7 @@ class Inscricao extends Component
     public function submit(RegistrationService $registrationService): void
     {
         $this->formError = null;
+        $this->calcularIdade();
         $this->validate();
 
         if ($this->age === null || $this->age < $this->minAge) {

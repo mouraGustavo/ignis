@@ -50,11 +50,9 @@ class Inscricoes extends Component
         $registrationService->confirmarPagamento(EventoInscrito::query()->findOrFail($id));
     }
 
-    public function cancel(int $id): void
+    public function cancel(int $id, RegistrationService $registrationService): void
     {
-        $statusCancelada = StatusInscricao::query()->where('nome', StatusInscricao::CANCELADA)->firstOrFail();
-
-        EventoInscrito::query()->findOrFail($id)->update(['status_id' => $statusCancelada->id]);
+        $registrationService->cancelarInscricao(EventoInscrito::query()->findOrFail($id));
     }
 
     #[Computed]

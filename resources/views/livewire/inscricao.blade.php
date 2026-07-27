@@ -22,7 +22,25 @@
                     <p class="text-slate-400">Preencha todos os campos obrigatórios (*) com atenção.</p>
                 </div>
 
-                <form wire:submit="submit" class="space-y-8">
+                <form
+                    wire:submit="submit"
+                    class="space-y-8"
+                    x-data="{
+                        birthDate: @entangle('birth_date'),
+                        get age() {
+                            if (! this.birthDate) return null;
+                            const dob = new Date(this.birthDate + 'T00:00:00');
+                            if (isNaN(dob.getTime())) return null;
+                            const today = new Date();
+                            let age = today.getFullYear() - dob.getFullYear();
+                            const monthDiff = today.getMonth() - dob.getMonth();
+                            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                                age--;
+                            }
+                            return age;
+                        },
+                    }"
+                >
                     {{-- Dados Pessoais --}}
                     <section class="ignis-card space-y-5">
                         <h2 class="text-lg font-bold text-ignis-gold">Dados Pessoais</h2>
@@ -45,20 +63,18 @@
 
                         <div class="grid grid-cols-2 gap-4">
                             <x-field label="Data de nascimento *" for="birth_date">
-                                <input id="birth_date" type="date" wire:model.live="birth_date" required class="ignis-input">
+                                <input id="birth_date" type="date" x-model="birthDate" required class="ignis-input">
                                 @error('birth_date') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                             </x-field>
                             <x-field label="Idade">
-                                <input value="{{ $age !== null ? "{$age} anos" : '' }}" readonly class="ignis-input opacity-60 cursor-not-allowed" placeholder="Calculado automaticamente">
+                                <input :value="age !== null ? age + ' anos' : ''" readonly class="ignis-input opacity-60 cursor-not-allowed" placeholder="Calculado automaticamente">
                             </x-field>
                         </div>
 
-                        @if ($age !== null && $age < $minAge)
-                            <div class="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl p-3">
-                                <x-icon name="alert-circle" class="w-4 h-4 flex-shrink-0" />
-                                <span>Idade mínima é {{ $minAge }} anos.</span>
-                            </div>
-                        @endif
+                        <div x-show="age !== null && age < {{ $minAge }}" x-cloak class="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                            <x-icon name="alert-circle" class="w-4 h-4 flex-shrink-0" />
+                            <span>Idade mínima é {{ $minAge }} anos.</span>
+                        </div>
 
                         <x-field label="Tamanho da camiseta *" for="shirt_size">
                             <select id="shirt_size" wire:model="shirt_size" required class="ignis-input">
@@ -72,18 +88,16 @@
                     </section>
 
                     {{-- Menores de idade --}}
-                    @if ($age !== null && $age < 18)
-                        <section class="bg-amber-900/20 border border-amber-700/40 rounded-2xl p-6 space-y-5">
-                            <h2 class="text-lg font-bold text-amber-400">Responsável (menor de 18 anos)</h2>
-                            <x-field label="Nome do responsável *" for="guardian_name">
-                                <input id="guardian_name" wire:model="guardian_name" required class="ignis-input" placeholder="Nome completo do responsável">
-                                @error('guardian_name') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
-                            </x-field>
-                            <x-field label="Documento do responsável (foto + assinatura) *">
-                                <x-file-dropzone model="guardianDocument" accept="image/*,application/pdf" hint="Foto do documento com assinatura — JPG, PNG ou PDF" :file="$guardianDocument" />
-                            </x-field>
-                        </section>
-                    @endif
+                    <section x-show="age !== null && age < 18" x-cloak class="bg-amber-900/20 border border-amber-700/40 rounded-2xl p-6 space-y-5">
+                        <h2 class="text-lg font-bold text-amber-400">Responsável (menor de 18 anos)</h2>
+                        <x-field label="Nome do responsável *" for="guardian_name">
+                            <input id="guardian_name" wire:model="guardian_name" required class="ignis-input" placeholder="Nome completo do responsável">
+                            @error('guardian_name') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+                        </x-field>
+                        <x-field label="Documento do responsável (foto + assinatura) *">
+                            <x-file-dropzone model="guardianDocument" accept="image/*,application/pdf" hint="Foto do documento com assinatura — JPG, PNG ou PDF" :file="$guardianDocument" />
+                        </x-field>
+                    </section>
 
                     {{-- Informacoes Medicas --}}
                     <section class="ignis-card space-y-5">
@@ -143,7 +157,7 @@
                         type="submit"
                         wire:loading.attr="disabled"
                         wire:target="submit"
-                        @disabled($age !== null && $age < $minAge)
+                        :disabled="age !== null && age < {{ $minAge }}"
                         class="ignis-btn-primary"
                     >
                         <span wire:loading.remove wire:target="submit">Continuar para Pagamento →</span>
