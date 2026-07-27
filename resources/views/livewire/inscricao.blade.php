@@ -91,7 +91,7 @@
                     <section x-show="age !== null && age < 18" x-cloak class="bg-amber-900/20 border border-amber-700/40 rounded-2xl p-6 space-y-5">
                         <h2 class="text-lg font-bold text-amber-400">Responsável (menor de 18 anos)</h2>
                         <x-field label="Nome do responsável *" for="guardian_name">
-                            <input id="guardian_name" wire:model="guardian_name" required class="ignis-input" placeholder="Nome completo do responsável">
+                            <input id="guardian_name" wire:model="guardian_name" class="ignis-input" placeholder="Nome completo do responsável">
                             @error('guardian_name') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                         </x-field>
                         <x-field label="Documento do responsável (foto + assinatura) *">
