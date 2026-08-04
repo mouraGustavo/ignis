@@ -23,7 +23,6 @@
                 </div>
 
                 <form
-                    wire:submit="submit"
                     class="space-y-8"
                     x-data="{
                         birthDate: @entangle('birth_date'),
@@ -39,7 +38,13 @@
                             }
                             return age;
                         },
+                        async handleSubmit(e) {
+                            e.preventDefault();
+                            const token = await window.executeRecaptcha(@js(config('services.recaptcha.site_key')), 'inscricao');
+                            $wire.submit(token);
+                        },
                     }"
+                    @submit="handleSubmit($event)"
                 >
                     {{-- Dados Pessoais --}}
                     <section class="ignis-card space-y-5">
@@ -170,3 +175,9 @@
         </div>
     @endif
 </div>
+
+@if (config('services.recaptcha.site_key'))
+    @push('head-scripts')
+        <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+    @endpush
+@endif

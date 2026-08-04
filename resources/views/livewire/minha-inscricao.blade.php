@@ -9,7 +9,17 @@
             <p class="text-slate-400">Digite o e-mail usado na inscrição para ver o status.</p>
         </div>
 
-        <form wire:submit="search" class="flex gap-3 mb-8">
+        <form
+            class="flex gap-3 mb-8"
+            x-data="{
+                async handleSubmit(e) {
+                    e.preventDefault();
+                    const token = await window.executeRecaptcha(@js(config('services.recaptcha.site_key')), 'minha_inscricao');
+                    $wire.searchWithRecaptcha(token);
+                },
+            }"
+            @submit="handleSubmit($event)"
+        >
             <div class="relative flex-1">
                 <x-icon name="search" class="w-5 h-5 absolute left-4 top-3.5 text-slate-500" />
                 <input
@@ -20,13 +30,19 @@
                     class="w-full bg-ignis-navy border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-ignis-gold transition-colors text-sm"
                 >
             </div>
-            <button type="submit" wire:loading.attr="disabled" wire:target="search" class="bg-ignis-gold hover:bg-ignis-gold-dark text-ignis-navy-dark font-bold px-6 py-3 rounded-xl text-sm transition-colors disabled:opacity-50 flex items-center gap-2">
-                <span wire:loading.remove wire:target="search"><x-icon name="search" class="w-4 h-4" /></span>
-                <span wire:loading wire:target="search"><x-icon name="loader-2" class="w-4 h-4" /></span>
+            <button type="submit" wire:loading.attr="disabled" wire:target="searchWithRecaptcha" class="bg-ignis-gold hover:bg-ignis-gold-dark text-ignis-navy-dark font-bold px-6 py-3 rounded-xl text-sm transition-colors disabled:opacity-50 flex items-center gap-2">
+                <span wire:loading.remove wire:target="searchWithRecaptcha"><x-icon name="search" class="w-4 h-4" /></span>
+                <span wire:loading wire:target="searchWithRecaptcha"><x-icon name="loader-2" class="w-4 h-4" /></span>
                 Buscar
             </button>
         </form>
         @error('email') <p class="text-red-400 text-xs -mt-6 mb-6">{{ $message }}</p> @enderror
+
+        @if (config('services.recaptcha.site_key'))
+            @push('head-scripts')
+                <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+            @endpush
+        @endif
 
         @if ($searched && $results && $results->isEmpty())
             <div class="ignis-card !p-8 text-center">

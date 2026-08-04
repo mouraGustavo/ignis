@@ -6,6 +6,7 @@ use App\Exceptions\VagasEsgotadasException;
 use App\Models\Evento;
 use App\Models\Setting;
 use App\Models\TamanhoCamisa;
+use App\Services\RecaptchaService;
 use App\Services\RegistrationService;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
@@ -146,9 +147,16 @@ class Inscricao extends Component
         ];
     }
 
-    public function submit(RegistrationService $registrationService): void
+    public function submit(RegistrationService $registrationService, RecaptchaService $recaptchaService, ?string $recaptchaToken = null): void
     {
         $this->formError = null;
+
+        if (! $recaptchaService->verify($recaptchaToken, 'inscricao')) {
+            $this->formError = 'Não foi possível validar sua solicitação automaticamente. Se estiver usando algum bloqueador de anúncios, desative-o para este site e tente novamente.';
+
+            return;
+        }
+
         $this->calcularIdade();
         $this->validate();
 

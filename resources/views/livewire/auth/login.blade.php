@@ -16,7 +16,17 @@
                 </div>
             @endif
 
-            <form wire:submit="login" class="space-y-5">
+            <form
+                class="space-y-5"
+                x-data="{
+                    async handleSubmit(e) {
+                        e.preventDefault();
+                        const token = await window.executeRecaptcha(@js(config('services.recaptcha.site_key')), 'login');
+                        $wire.login(token);
+                    },
+                }"
+                @submit="handleSubmit($event)"
+            >
                 <div>
                     <label for="email" class="block text-sm font-medium text-slate-300 mb-2">E-mail</label>
                     <div class="relative">
@@ -73,3 +83,9 @@
         </div>
     </div>
 </div>
+
+@if (config('services.recaptcha.site_key'))
+    @push('head-scripts')
+        <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+    @endpush
+@endif
