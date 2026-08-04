@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\EventoInscrito;
 use App\Models\StatusInscricao;
 use App\Models\TamanhoCamisa;
+use App\Services\RecaptchaService;
 use App\Services\RegistrationService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -64,6 +65,23 @@ class MinhaInscricao extends Component
         if (filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
             $this->search();
         }
+    }
+
+    /**
+     * Busca acionada pelo formulario (usuario clicando em "Buscar"), protegida por
+     * reCAPTCHA. mount() chama search() diretamente (sem token) para o link vindo
+     * da tela de pagamento continuar funcionando sem depender de uma interacao do
+     * usuario nesta pagina.
+     */
+    public function searchWithRecaptcha(RecaptchaService $recaptchaService, ?string $recaptchaToken = null): void
+    {
+        if (! $recaptchaService->verify($recaptchaToken, 'minha_inscricao')) {
+            $this->addError('email', 'Não foi possível validar sua solicitação automaticamente. Se estiver usando algum bloqueador de anúncios, desative-o para este site e tente novamente.');
+
+            return;
+        }
+
+        $this->search();
     }
 
     public function search(): void
