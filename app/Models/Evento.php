@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class Evento extends Model
 {
@@ -18,6 +19,7 @@ class Evento extends Model
         'descricao',
         'data_inicio',
         'data_fim',
+        'data_limite_inscricao',
         'local',
         'valor_inscricao',
         'limite_vagas',
@@ -28,6 +30,7 @@ class Evento extends Model
     protected $casts = [
         'data_inicio' => 'date',
         'data_fim' => 'date',
+        'data_limite_inscricao' => 'date',
         'valor_inscricao' => 'decimal:2',
         'limite_vagas' => 'integer',
         'idade_minima' => 'integer',
@@ -67,5 +70,19 @@ class Evento extends Model
     public function atingiuLimiteVagas(): bool
     {
         return $this->vagasDisponiveis() <= 0;
+    }
+
+    /**
+     * Se nao houver `data_limite_inscricao` configurada, o prazo nunca encerra por data
+     * (o bloqueio continua dependendo so de vagas/`registration_open`). O dia do limite
+     * em si ainda conta como aberto — so fecha a partir do dia seguinte.
+     */
+    public function prazoInscricaoEncerrado(): bool
+    {
+        if (! $this->data_limite_inscricao) {
+            return false;
+        }
+
+        return Carbon::today()->gt($this->data_limite_inscricao);
     }
 }

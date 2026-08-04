@@ -85,7 +85,7 @@ class MinhaInscricao extends Component
             return false;
         }
 
-        return $reg->evento?->data_inicio !== null && $reg->evento->data_inicio->isFuture();
+        return $reg->evento !== null && ! $reg->evento->prazoInscricaoEncerrado();
     }
 
     public function edit(int $id): void

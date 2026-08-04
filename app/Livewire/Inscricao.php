@@ -75,7 +75,10 @@ class Inscricao extends Component
         $evento = Evento::atual();
 
         $this->minAge = $evento?->idade_minima ?? 13;
-        $this->isFull = ! $evento || $evento->atingiuLimiteVagas() || Setting::get('registration_open') === 'false';
+        $this->isFull = ! $evento
+            || $evento->atingiuLimiteVagas()
+            || $evento->prazoInscricaoEncerrado()
+            || Setting::get('registration_open') === 'false';
     }
 
     /**

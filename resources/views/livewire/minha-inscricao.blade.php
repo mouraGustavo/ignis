@@ -89,9 +89,9 @@
                                 <button type="button" wire:click="edit({{ $reg->id }})" class="mt-4 inline-flex items-center gap-2 text-sm text-ignis-gold hover:text-ignis-gold-light transition-colors">
                                     <x-icon name="pencil" class="w-4 h-4" /> Alterar meus dados
                                 </button>
-                            @elseif ($category !== 'cancelled' && $reg->evento?->data_inicio)
+                            @elseif ($category !== 'cancelled' && $reg->evento?->data_limite_inscricao)
                                 <p class="mt-4 text-xs text-slate-500">
-                                    O prazo para alterar os dados desta inscrição encerrou em {{ $reg->evento->data_inicio->translatedFormat('d \d\e F \d\e Y') }}.
+                                    O prazo para alterar os dados desta inscrição encerrou em {{ $reg->evento->data_limite_inscricao->translatedFormat('d \d\e F \d\e Y') }}.
                                 </p>
                             @endif
                         @else

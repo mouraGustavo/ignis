@@ -77,6 +77,14 @@
                     <span class="text-sm text-slate-300">Permitir novas inscrições</span>
                 </label>
             </x-field>
+            <x-field label="Data limite para inscrição" for="registration_deadline">
+                <input id="registration_deadline" type="date" wire:model="registration_deadline" class="ignis-input">
+                <p class="text-xs text-slate-500 mt-1">
+                    A partir do dia seguinte a esta data, novas inscrições ficam bloqueadas e quem já se inscreveu não
+                    consegue mais alterar os próprios dados. Deixe em branco para não aplicar um prazo.
+                </p>
+                @error('registration_deadline') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
+            </x-field>
         </section>
 
         <section class="ignis-card space-y-5">

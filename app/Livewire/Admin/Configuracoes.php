@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Models\Evento;
 use App\Models\Setting;
 use App\Services\FileUploadService;
 use Livewire\Attributes\Layout;
@@ -28,6 +29,8 @@ class Configuracoes extends Component
     public string $registration_value = '150';
 
     public bool $registration_open = true;
+
+    public string $registration_deadline = '';
 
     public string $pix_key = '';
 
@@ -75,6 +78,7 @@ class Configuracoes extends Component
         $this->logo_url = $settings['logo_url'];
         $this->brasao_url = $settings['brasao_url'];
         $this->church_url = $settings['church_url'];
+        $this->registration_deadline = Evento::atual()?->data_limite_inscricao?->toDateString() ?? '';
     }
 
     protected function rules(): array
@@ -87,6 +91,7 @@ class Configuracoes extends Component
             'hero_image_url' => ['nullable', 'string', 'max:500'],
             'max_spots' => ['required', 'integer', 'min:1'],
             'registration_value' => ['required', 'numeric', 'min:0'],
+            'registration_deadline' => ['nullable', 'date'],
             'pix_key' => ['nullable', 'string', 'max:255'],
             'pix_name' => ['nullable', 'string', 'max:255'],
             'coordinator_email' => ['nullable', 'email', 'max:255'],
@@ -120,10 +125,15 @@ class Configuracoes extends Component
             $data['pix_qrcode_url'] = $fileUploadService->storePublic($this->pix_qrcode_file, 'pix');
         }
 
-        unset($data['logo_file'], $data['brasao_file'], $data['church_file'], $data['pix_qrcode_file']);
+        $registrationDeadline = $data['registration_deadline'] ?? null;
+        unset($data['logo_file'], $data['brasao_file'], $data['church_file'], $data['pix_qrcode_file'], $data['registration_deadline']);
 
         foreach ($data as $key => $value) {
             Setting::set($key, (string) $value);
+        }
+
+        if ($evento = Evento::atual()) {
+            $evento->update(['data_limite_inscricao' => $registrationDeadline ?: null]);
         }
 
         $this->logo_url = $data['logo_url'] ?? $this->logo_url;
