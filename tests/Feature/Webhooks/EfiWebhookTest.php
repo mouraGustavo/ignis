@@ -70,4 +70,26 @@ class EfiWebhookTest extends TestCase
     {
         $this->post(route('webhooks.efi'), [])->assertStatus(400);
     }
+
+    #[Test]
+    public function it_rejects_webhook_with_invalid_token_format(): void
+    {
+        $this->post(route('webhooks.efi'), [
+            'notification' => 'not-a-uuid',
+        ])->assertStatus(400);
+    }
+
+    #[Test]
+    public function it_is_idempotent_for_duplicate_notification_tokens(): void
+    {
+        Bus::fake();
+
+        $token = '00000000-0000-0000-0000-000000000002';
+
+        $this->post(route('webhooks.efi'), ['notification' => $token])->assertOk();
+        $this->post(route('webhooks.efi'), ['notification' => $token])->assertOk();
+
+        $this->assertDatabaseCount('payment_notifications', 1);
+        Bus::assertDispatched(ProcessEfiNotificationJob::class, 1);
+    }
 }

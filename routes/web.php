@@ -3,9 +3,7 @@
 use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\Admin\ReportExportController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\EfiWebhookController;
 use App\Http\Controllers\PublicSiteController;
-use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,10 +21,6 @@ Route::get('/equipe', [PublicSiteController::class, 'equipe'])->name('equipe');
 Route::get('/inscricao', \App\Livewire\Inscricao::class)->name('inscricao');
 Route::get('/pagamento/{eventoInscrito}', \App\Livewire\Pagamento::class)->name('pagamento');
 Route::get('/minha-inscricao', \App\Livewire\MinhaInscricao::class)->name('minha-inscricao');
-
-Route::post('/webhooks/efi', EfiWebhookController::class)
-    ->name('webhooks.efi')
-    ->withoutMiddleware([ValidateCsrfToken::class]);
 
 /*
 |--------------------------------------------------------------------------
