@@ -134,10 +134,11 @@
                         <h2 class="text-lg font-bold text-ignis-gold">Termos de Autorização</h2>
                         @foreach ([
                             ['name' => 'term_truth', 'label' => 'Declaro que todas as informações prestadas são verdadeiras.'],
-                            ['name' => 'term_participation', 'label' => 'Autorizo a participação no acampamento.'],
                             ['name' => 'term_emergency', 'label' => 'Autorizo atendimento de emergência, caso necessário.'],
                             ['name' => 'term_image', 'label' => 'Autorizo o uso de imagem em fotos e vídeos do evento.'],
-                            ['name' => 'term_rules', 'label' => 'Comprometo-me a cumprir todas as normas do acampamento.'],
+                            ['name' => 'term_participation', 'label' => 'Autorizo a utilização de meus dados pessoais para fins de inscrição no acampamento.'],
+                            ['name' => 'term_rules', 'label' => 'Comprometo-me a cumprir todas as normas do acampamento. Entendo que qualquer depredação ou dano ao patrimônio do acampamento será responsabilidade do inscrito.'],
+                            ['name' => 'term_whatsapp', 'label' => 'Entendo que em caso de desistência, por parte do inscrito NÃO será devolvido o valor da inscrição.'],
                         ] as $term)
                             <label class="flex items-start gap-3 cursor-pointer group">
                                 <input

@@ -8,6 +8,8 @@ está **confirmada**.
 
 Número de inscrição: **{{ $eventoInscrito->numero_inscricao }}**
 
+Entre no [nosso grupo do WhatsApp](https://chat.whatsapp.com/JyAGCqVuyAj3TiKZCku1AD) para receber informações e avisos sobre o evento.
+
 Nos vemos lá!<br>
 {{ config('app.name') }}
 </x-mail::message>
